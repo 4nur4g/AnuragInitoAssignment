@@ -7,6 +7,10 @@ android {
     namespace 'com.example.anuraginitoassignment'
     compileSdk 33
 
+    buildFeatures {
+        dataBinding true
+    }
+
     defaultConfig {
         applicationId "com.example.anuraginitoassignment"
         minSdk 24
