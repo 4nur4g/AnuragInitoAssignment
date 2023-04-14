@@ -49,8 +49,8 @@ class MainActivity : AppCompatActivity() {
                 viewModel.saveUser(name, email)
 
                 // start quiz activity
-//                val intent = Intent(this, Screen2Activity::class.java)
-//                startActivity(intent)
+                val intent = Intent(this, Screen2Activity::class.java)
+                startActivity(intent)
             } else {
                 Toast.makeText(this, "Please enter your name and email", Toast.LENGTH_SHORT).show()
             }
