@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/activity_main"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <FrameLayout
+            android:id="@+id/camera_preview"
+            android:layout_width="fill_parent"
+            android:layout_height="fill_parent"
+            android:layout_weight="1"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <com.github.lzyzsd.circleprogress.DonutProgress
+            android:id="@+id/circular_timer"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_below="@id/test_status_field"
+            android:layout_centerHorizontal="true"
+            android:text="300"
+            app:circle_finished_color="#7FFF00"
+            app:circle_progress="100"
+            app:circle_text_color="#000000"
+            app:circle_text_size="24sp"
+            app:circle_unfinished_color="#DDDDDD"
+            app:donut_show_text="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="@+id/test_status_field"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="@+id/test_status_field"
+            app:layout_constraintTop_toBottomOf="@+id/test_status_field" />
+
+        <TextView
+            android:id="@+id/test_status_field"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="10dp"
+            android:text="Capturing Single Image"
+            android:textSize="24sp"
+            app:layout_constraintBottom_toTopOf="@+id/circular_timer"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_chainStyle="packed" />
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

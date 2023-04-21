@@ -18,20 +18,17 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import com.example.anuraginitoassignment.databinding.ActivityScreen2Binding
+import com.example.anuraginitoassignment.databinding.ActivityScreen3Binding
 import com.example.anuraginitoassignment.util.CameraPreview
 import com.github.lzyzsd.circleprogress.CircleProgress
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
 import kotlin.concurrent.timer
 
-class Screen2Activity : AppCompatActivity() {
+class Screen3Activity : AppCompatActivity() {
 
-    private lateinit var binding: ActivityScreen2Binding
+    private lateinit var binding: ActivityScreen3Binding
 
     private var mCamera: Camera? = null
     private var mPreview: CameraPreview? = null
@@ -71,7 +68,7 @@ class Screen2Activity : AppCompatActivity() {
     }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        binding = ActivityScreen2Binding.inflate(layoutInflater)
+        binding = ActivityScreen3Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
         // capture image with custom camera using Camera1 library
@@ -121,32 +118,24 @@ class Screen2Activity : AppCompatActivity() {
 
 //            mCamera?.takePicture(null, null, mPicture)
             timer(5000,1000,mPicture)
+        }
     }
-}
 
     private fun timer(i: Int, i1: Int, mPicture: Camera.PictureCallback) {
-        object : CountDownTimer(3000, 1000) {
+        object : CountDownTimer(5000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
+                val seconds = millisUntilFinished / 1000
+                binding.circularTimer.text = (seconds).toString() + 's'
+                binding.circularTimer.setDonut_progress((100 - ((seconds.toDouble())/5)*100).toInt().toString())
+                Log.d("TIMER", ((seconds.toDouble()/5)*100).toString())
             }
+
             override fun onFinish() {
+                binding.circularTimer.progress = 0f
+                binding.circularTimer.text = "0s"
+                binding.circularTimer.setDonut_progress("100")
                 // move to Screen 3
-
-                GlobalScope.launch(Dispatchers.Main) {
-                    // Run the takePicture function in a coroutine on the main thread
-                    mCamera?.takePicture(null, null, mPicture)
-
-                    // Wait for the takePicture function to complete
-                    withContext(Dispatchers.Default) {
-                        // Do any additional processing here
-                    }
-
-                    // Start the next activity
-                    val intent = Intent(this@Screen2Activity, Screen3Activity::class.java)
-                    startActivity(intent)
-                    finish() // Finish this activity so the user can't go back to it
-                }
-
-//                mCamera?.takePicture(null, null, mPicture)
+                mCamera?.takePicture(null, null, mPicture)
             }
         }.start()
     }
