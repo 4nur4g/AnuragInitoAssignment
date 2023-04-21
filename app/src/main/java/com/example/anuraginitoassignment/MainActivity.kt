@@ -6,7 +6,10 @@ import android.os.Bundle
 import android.content.Context
 import android.content.Intent
 import android.content.SharedPreferences
+import android.content.pm.PackageManager
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
 import com.example.anuraginitoassignment.databinding.ActivityMainBinding
 import com.example.anuraginitoassignment.viewModel.MainViewModel
@@ -16,6 +19,15 @@ class MainActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainBinding
 
     private lateinit var viewModel: MainViewModel
+
+    // Define a constant for the permission request code
+    val PERMISSION_REQUEST_CODE = 1
+
+    // Define an array of permissions to request
+    val permissions = arrayOf(android.Manifest.permission.CAMERA, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
+
+
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,5 +67,35 @@ class MainActivity : AppCompatActivity() {
                 Toast.makeText(this, "Please enter your name and email", Toast.LENGTH_SHORT).show()
             }
         }
+
+        if (!checkPermissions()) {
+            requestPermissions()
+        }
+    }
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (requestCode == PERMISSION_REQUEST_CODE) {
+            if (grantResults.isNotEmpty() && grantResults.all { it == PackageManager.PERMISSION_GRANTED }) {
+                // All permissions are granted
+                Toast.makeText(this, "Permissions granted", Toast.LENGTH_SHORT).show()
+            } else {
+                // Some permissions are denied
+                Toast.makeText(this, "Permissions denied", Toast.LENGTH_SHORT).show()
+            }
+        }
+    }
+
+    fun checkPermissions(): Boolean {
+        for (permission in permissions) {
+            if (ContextCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false // At least one permission is not granted
+            }
+        }
+        return true // All permissions are granted
+    }
+
+    // Request the permissions if not granted
+    fun requestPermissions() {
+        ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE)
     }
 }

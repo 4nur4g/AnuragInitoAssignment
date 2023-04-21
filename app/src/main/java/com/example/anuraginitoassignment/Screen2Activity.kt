@@ -36,13 +36,16 @@ class Screen2Activity : AppCompatActivity() {
     private var mCamera: Camera? = null
     private var mPreview: CameraPreview? = null
     private var mParameters: Camera.Parameters? = null
+
     // Create a file for the image
     @RequiresApi(Build.VERSION_CODES.N)
     private fun getOutputMediaFile(): File {
         // Get the directory for storing images
         val mediaStorageDir = File(
             Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "MyCameraApp")
+                Environment.DIRECTORY_PICTURES
+            ), "MyCameraApp"
+        )
 
         // Create the directory if it doesn't exist
         if (!mediaStorageDir.exists()) {
@@ -54,10 +57,11 @@ class Screen2Activity : AppCompatActivity() {
 
         // Create a unique file name
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        return File(mediaStorageDir.path + File.separator +
-                "IMG_" + timeStamp + ".jpg")
+        return File(
+            mediaStorageDir.path + File.separator +
+                    "IMG_" + timeStamp + ".jpg"
+        )
     }
-
 
 
     /** A safe way to get an instance of the Camera object. */
@@ -69,6 +73,8 @@ class Screen2Activity : AppCompatActivity() {
             null // returns null if camera is unavailable
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityScreen2Binding.inflate(layoutInflater)
@@ -77,6 +83,9 @@ class Screen2Activity : AppCompatActivity() {
         // capture image with custom camera using Camera1 library
         // set ISO to 100 and focus to 1
         // save image to gallery
+
+        binding.circularTimer.visibility = View.GONE
+
 
         // Create an instance of Camera
         mCamera = getCameraInstance()
@@ -120,36 +129,48 @@ class Screen2Activity : AppCompatActivity() {
             }
 
 //            mCamera?.takePicture(null, null, mPicture)
-            timer(5000,1000,mPicture)
+            timer(5000, 1000, mPicture)
+        }
     }
-}
 
     private fun timer(i: Int, i1: Int, mPicture: Camera.PictureCallback) {
         object : CountDownTimer(3000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
             }
+
             override fun onFinish() {
-                // move to Screen 3
-
-                GlobalScope.launch(Dispatchers.Main) {
-                    // Run the takePicture function in a coroutine on the main thread
-                    mCamera?.takePicture(null, null, mPicture)
-
-                    // Wait for the takePicture function to complete
-                    withContext(Dispatchers.Default) {
-                        // Do any additional processing here
-                    }
-
-                    // Start the next activity
-                    val intent = Intent(this@Screen2Activity, Screen3Activity::class.java)
-                    startActivity(intent)
-                    finish() // Finish this activity so the user can't go back to it
-                }
-
-//                mCamera?.takePicture(null, null, mPicture)
+                mCamera?.takePicture(null, null, mPicture)
+                binding.testStatusField.visibility = View.GONE
+                binding.circularTimer.visibility = View.VISIBLE
+                timer2(5000, 1000, mPicture)
             }
         }.start()
     }
+
+    private fun timer2(i: Int, i1: Int, mPicture: Camera.PictureCallback) {
+        object : CountDownTimer(5000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                val seconds = millisUntilFinished / 1000
+                binding.circularTimer.text = (seconds).toString() + 's'
+                binding.circularTimer.setDonut_progress(
+                    (100 - ((seconds.toDouble()) / 5) * 100).toInt().toString()
+                )
+                Log.d("TIMER", ((seconds.toDouble() / 5) * 100).toString())
+            }
+
+            override fun onFinish() {
+                binding.circularTimer.progress = 0f
+                binding.circularTimer.text = "0s"
+                binding.circularTimer.setDonut_progress("100")
+                // move to Screen 3
+                val intent = Intent(this@Screen2Activity, Screen3Activity::class.java)
+                startActivity(intent)
+                finish()
+            }
+        }.start()
+    }
+
+
     // Method to set the camera preview orientation
     private fun setCameraDisplayOrientation() {
         val info = Camera.CameraInfo()

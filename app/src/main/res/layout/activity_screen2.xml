@@ -32,6 +32,25 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
+        <com.github.lzyzsd.circleprogress.DonutProgress
+            android:id="@+id/circular_timer"
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_below="@id/test_status_field"
+            android:layout_centerHorizontal="true"
+            android:text="300"
+            app:circle_finished_color="#7FFF00"
+            app:circle_progress="100"
+            app:circle_text_color="#000000"
+            app:circle_text_size="24sp"
+            app:circle_unfinished_color="#DDDDDD"
+            app:donut_show_text="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/camera_preview" />
+
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 </layout>
