@@ -111,9 +111,5 @@ class CameraTestActivity : AppCompatActivity() {
                 mCamera?.takePicture(null, null, mPicture)
             }
         }
-
-
-
-
     }
 }

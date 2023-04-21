@@ -12,6 +12,7 @@ import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Environment
 import android.util.Log
+import android.view.Surface
 import android.view.View
 import android.widget.FrameLayout
 import com.example.anuraginitoassignment.databinding.ActivityScreen2Binding
@@ -20,6 +21,7 @@ import com.github.lzyzsd.circleprogress.CircleProgress
 import java.io.File
 import java.io.FileOutputStream
 import java.util.*
+import kotlin.concurrent.timer
 
 class Screen2Activity : AppCompatActivity() {
 
@@ -27,6 +29,7 @@ class Screen2Activity : AppCompatActivity() {
 
     private var mCamera: Camera? = null
     private var mPreview: CameraPreview? = null
+    private var mParameters: Camera.Parameters? = null
     // Create a file for the image
     private fun getOutputMediaFile(): File {
         // Get the directory for storing images
@@ -48,13 +51,10 @@ class Screen2Activity : AppCompatActivity() {
                 "IMG_" + timeStamp + ".jpg")
     }
 
-    /** Check if this device has a camera */
-    private fun checkCameraHardware(context: Context): Boolean {
-        return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA)
-    }
+
 
     /** A safe way to get an instance of the Camera object. */
-    fun getCameraInstance(): Camera? {
+    private fun getCameraInstance(): Camera? {
         return try {
             Camera.open() // attempt to get a Camera instance
         } catch (e: Exception) {
@@ -62,29 +62,10 @@ class Screen2Activity : AppCompatActivity() {
             null // returns null if camera is unavailable
         }
     }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityScreen2Binding.inflate(layoutInflater)
         setContentView(binding.root)
-
-        // start timer
-        object : CountDownTimer(5000, 1000) {
-            override fun onTick(millisUntilFinished: Long) {
-                val seconds = millisUntilFinished / 1000
-                binding.circularTimer.text = (seconds).toString() + 's'
-//                binding.circularTimer.progress = ((millisUntilFinished/5000))*1000.toFloat()
-                binding.circularTimer.setDonut_progress((100 - ((seconds.toDouble())/5)*100).toInt().toString())
-                Log.d("TIMER", ((seconds.toDouble()/5)*100).toString())
-            }
-
-            override fun onFinish() {
-                binding.circularTimer.progress = 0f
-                binding.circularTimer.text = "0s"
-                binding.circularTimer.setDonut_progress("100")
-                // move to Screen 3
-            }
-        }.start()
 
         // capture image with custom camera using Camera1 library
         // set ISO to 100 and focus to 1
@@ -93,12 +74,18 @@ class Screen2Activity : AppCompatActivity() {
         // Create an instance of Camera
         mCamera = getCameraInstance()
 
+        // Set the camera parameters
+        mParameters = mCamera!!.parameters
+        mParameters!!.set("iso", "100")
+        setCameraDisplayOrientation()
+
+        mCamera!!.parameters = mParameters
         mPreview = mCamera?.let {
             // Create our Preview view
             CameraPreview(this, it)
         }
 
-// Set the Preview view as the content of our activity.
+        // Set the Preview view as the content of our activity.
         mPreview?.also {
             val preview: FrameLayout = findViewById(R.id.camera_preview)
             preview.addView(it)
@@ -124,5 +111,49 @@ class Screen2Activity : AppCompatActivity() {
                     Log.e(ContentValues.TAG, "Error saving image: " + e.message)
                 }
             }
+
+//            mCamera?.takePicture(null, null, mPicture)
+            timer(5000,1000,mPicture)
     }
-}}
+}
+
+    private fun timer(i: Int, i1: Int, mPicture: Camera.PictureCallback) {
+        object : CountDownTimer(5000, 1000) {
+            override fun onTick(millisUntilFinished: Long) {
+                val seconds = millisUntilFinished / 1000
+                binding.circularTimer.text = (seconds).toString() + 's'
+                binding.circularTimer.setDonut_progress((100 - ((seconds.toDouble())/5)*100).toInt().toString())
+                Log.d("TIMER", ((seconds.toDouble()/5)*100).toString())
+            }
+
+            override fun onFinish() {
+                binding.circularTimer.progress = 0f
+                binding.circularTimer.text = "0s"
+                binding.circularTimer.setDonut_progress("100")
+                // move to Screen 3
+                mCamera?.takePicture(null, null, mPicture)
+            }
+        }.start()
+    }
+    // Method to set the camera preview orientation
+    private fun setCameraDisplayOrientation() {
+        val info = Camera.CameraInfo()
+        Camera.getCameraInfo(0, info)
+        val rotation = windowManager.defaultDisplay.rotation
+        var degrees = 0
+        when (rotation) {
+            Surface.ROTATION_0 -> degrees = 0
+            Surface.ROTATION_90 -> degrees = 90
+            Surface.ROTATION_180 -> degrees = 180
+            Surface.ROTATION_270 -> degrees = 270
+        }
+        var result: Int
+        if (info.facing == Camera.CameraInfo.CAMERA_FACING_FRONT) {
+            result = (info.orientation + degrees) % 360
+            result = (360 - result) % 360  // compensate for the mirror image
+        } else {  // back-facing
+            result = (info.orientation - degrees + 360) % 360
+        }
+        mCamera!!.setDisplayOrientation(result)
+    }
+}
