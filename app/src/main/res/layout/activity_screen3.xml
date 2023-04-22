@@ -21,7 +21,8 @@
 
         <TextView
             android:id="@+id/test_status_field"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
+            android:textAlignment="center"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
             android:text="Capturing Multiple Images"
