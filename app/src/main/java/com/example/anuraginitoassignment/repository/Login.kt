@@ -1,6 +1,8 @@
 package com.example.anuraginitoassignment.repository
 
+import android.content.Context
 import android.util.Log
+import android.widget.Toast
 import com.example.anuraginitoassignment.data.LoginRequest
 import com.example.anuraginitoassignment.data.LoginResponse
 import retrofit2.Call
@@ -29,7 +31,7 @@ val apiService = retrofit?.create(ApiService::class.java)
 // Request body object with user email and password
 val loginRequest = LoginRequest("amit_4@test.com", "12345678")
 
-fun LoginCall () {
+fun LoginCall (context:Context) {
     // Call the post method on the API service object with the request body object
     apiService?.login(loginRequest)?.enqueue(object : Callback<LoginResponse> {
         override fun onResponse(call: Call<LoginResponse>, response: Response<LoginResponse>) {
@@ -40,6 +42,7 @@ fun LoginCall () {
 
                 if (authToken != null) {
                     Log.d("token",authToken)
+                    Toast.makeText(context, "Auth token obtained successfully", Toast.LENGTH_SHORT).show()
                 }
 
                 Log.d("token","successfull response")

@@ -81,7 +81,7 @@ class Screen2Activity : AppCompatActivity() {
         binding = ActivityScreen2Binding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        LoginCall()
+        LoginCall(this)
 
         // capture image with custom camera using Camera1 library
         // set ISO to 100 and focus to 1
