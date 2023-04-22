@@ -126,12 +126,12 @@ class Screen3Activity : AppCompatActivity() {
             }
 
 //            mCamera?.takePicture(null, null, mPicture)
-            timer(5000, 1000, mPicture)
+            timer(27000, 1000, mPicture)
         }
     }
 
-    private fun timer(i: Int, i1: Int, mPicture: Camera.PictureCallback) {
-        object : CountDownTimer(5000, 1000) {
+    private fun timer(i: Long, i1: Long, mPicture: Camera.PictureCallback) {
+        object : CountDownTimer(i, i1) {
             override fun onTick(millisUntilFinished: Long) {
 
                 if (isFirstSecond) {
@@ -141,6 +141,7 @@ class Screen3Activity : AppCompatActivity() {
 
                     if (initialExposure <= 12) {
                         binding.testStatusField.text = "Capturing Image with exposure ${initialExposure}"
+                        Log.d("EXPOSURE", "Capturing Image with exposure ${initialExposure}")
                         mCamera?.let { captureImageWithExposure(it, initialExposure, mPicture) }
                         initialExposure += 1
                     }
