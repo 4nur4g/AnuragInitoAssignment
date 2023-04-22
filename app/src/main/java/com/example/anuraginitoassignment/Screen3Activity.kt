@@ -150,6 +150,7 @@ class Screen3Activity : AppCompatActivity() {
 
             override fun onFinish() {
                 binding.testStatusField.text = "Uploading Images"
+                resetAndReleaseCamera()
             }
         }.start()
     }
@@ -186,4 +187,21 @@ class Screen3Activity : AppCompatActivity() {
         // Take a picture and pass the callback
         camera.takePicture(null, null, callback)
     }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        resetAndReleaseCamera()
+    }
+
+    private fun resetAndReleaseCamera() {
+        // Stop the preview
+        mCamera?.stopPreview()
+        // Clear the preview callback
+        mCamera?.setPreviewCallback(null)
+        // Release the camera resources
+        mCamera?.release()
+        // Set the camera instance to null
+        mCamera = null
+    }
+
 }
