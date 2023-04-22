@@ -18,6 +18,7 @@ import android.view.View
 import android.widget.FrameLayout
 import androidx.annotation.RequiresApi
 import com.example.anuraginitoassignment.databinding.ActivityScreen2Binding
+import com.example.anuraginitoassignment.repository.LoginCall
 import com.example.anuraginitoassignment.util.CameraPreview
 import com.github.lzyzsd.circleprogress.CircleProgress
 import kotlinx.coroutines.Dispatchers
@@ -79,6 +80,8 @@ class Screen2Activity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityScreen2Binding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        LoginCall()
 
         // capture image with custom camera using Camera1 library
         // set ISO to 100 and focus to 1
