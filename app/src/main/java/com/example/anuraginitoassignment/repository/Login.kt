@@ -39,9 +39,12 @@ fun LoginCall (context:Context) {
             if (response.isSuccessful) {
                 // Get the auth token from the header of the response
                 val authToken = response.headers().get("access-token")
+                val uid = response.headers().get("uid")
+                val client = response.headers().get("client")
+
 
                 if (authToken != null) {
-                    Log.d("token",authToken)
+                    Log.d("token","${authToken},${uid},${client}")
                     Toast.makeText(context, "Auth token obtained successfully", Toast.LENGTH_SHORT).show()
                 }
 

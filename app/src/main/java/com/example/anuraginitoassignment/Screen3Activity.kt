@@ -153,6 +153,7 @@ class Screen3Activity : AppCompatActivity() {
             override fun onFinish() {
                 binding.testStatusField.text = "Uploading Images"
                 resetAndReleaseCamera()
+//                selectImageWithClosestExposureToMean(this@Screen3Activity)
             }
         }.start()
     }
@@ -261,6 +262,8 @@ class Screen3Activity : AppCompatActivity() {
         // To retrieve the actual file path of the image, you can use the following code:
         val filePath = getFilePathFromUri(context, closestImageUri!!)
         val file = File(filePath)
+
+        Log.d("token", "File path: $filePath")
     }
 
     fun getFilePathFromUri(context: Context, uri: Uri): String? {
