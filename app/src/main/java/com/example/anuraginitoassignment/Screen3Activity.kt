@@ -1,5 +1,6 @@
 package com.example.anuraginitoassignment
 
+import android.annotation.SuppressLint
 import android.content.ContentValues
 import android.content.Context
 import android.content.Intent
@@ -12,6 +13,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.os.Environment
+import android.provider.MediaStore
 import android.util.Log
 import android.view.Surface
 import android.view.View
@@ -202,6 +204,77 @@ class Screen3Activity : AppCompatActivity() {
         mCamera?.release()
         // Set the camera instance to null
         mCamera = null
+    }
+
+    @SuppressLint("Range")
+    fun selectImageWithClosestExposureToMean(context: Context) {
+        // First, we need to query the MediaStore for all the images captured by the app
+        val projection = arrayOf(
+            MediaStore.Images.Media._ID,
+            MediaStore.Images.Media.EXPOSURE_TIME
+        )
+        val selection = "${MediaStore.Images.Media.DATA} LIKE '%/Pictures/MyCameraApp/%'"
+        val sortOrder = "${MediaStore.Images.Media.DATE_TAKEN} DESC"
+
+        val query = context.contentResolver.query(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            null,
+            sortOrder
+        )
+
+        // If there are no images, we can return early
+        if (query == null || query.count == 0) {
+            return
+        }
+
+        // Next, we need to calculate the mean exposure time of all the images
+        var exposureSum = 0L
+        query.moveToFirst()
+        while (!query.isAfterLast) {
+            exposureSum += query.getLong(query.getColumnIndex(MediaStore.Images.Media.EXPOSURE_TIME))
+            query.moveToNext()
+        }
+        val meanExposure = exposureSum / query.count
+
+        // Finally, we need to find the image with the exposure time closest to the mean
+        var closestImageUri: Uri? = null
+        var closestExposureDiff = Long.MAX_VALUE
+        query.moveToFirst()
+        while (!query.isAfterLast) {
+            val exposure = query.getLong(query.getColumnIndex(MediaStore.Images.Media.EXPOSURE_TIME))
+            val exposureDiff = Math.abs(exposure - meanExposure)
+            if (exposureDiff < closestExposureDiff) {
+                closestImageUri = Uri.withAppendedPath(
+                    MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    query.getString(query.getColumnIndex(MediaStore.Images.Media._ID))
+                )
+                closestExposureDiff = exposureDiff
+            }
+            query.moveToNext()
+        }
+
+        // At this point, closestImageUri should be set to the URI of the closest image to the mean exposure
+        // You can then send this image to the backend using your preferred networking library
+
+        // To retrieve the actual file path of the image, you can use the following code:
+        val filePath = getFilePathFromUri(context, closestImageUri!!)
+        val file = File(filePath)
+    }
+
+    fun getFilePathFromUri(context: Context, uri: Uri): String? {
+        val projection = arrayOf(MediaStore.Images.Media.DATA)
+        val cursor = context.contentResolver.query(uri, projection, null, null, null)
+        return if (cursor != null) {
+            val columnIndex = cursor.getColumnIndexOrThrow(MediaStore.Images.Media.DATA)
+            cursor.moveToFirst()
+            val filePath = cursor.getString(columnIndex)
+            cursor.close()
+            filePath
+        } else {
+            null
+        }
     }
 
 }
