@@ -95,7 +95,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // Request the permissions if not granted
-    fun requestPermissions() {
+    private fun requestPermissions() {
         ActivityCompat.requestPermissions(this, permissions, PERMISSION_REQUEST_CODE)
     }
 }

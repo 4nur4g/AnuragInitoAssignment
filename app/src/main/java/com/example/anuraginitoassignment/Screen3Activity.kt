@@ -33,13 +33,19 @@ class Screen3Activity : AppCompatActivity() {
     private var mCamera: Camera? = null
     private var mPreview: CameraPreview? = null
     private var mParameters: Camera.Parameters? = null
+
+    var isFirstSecond = true // initialize the flag as true
+    var initialExposure = -12
+
     // Create a file for the image
     @RequiresApi(Build.VERSION_CODES.N)
     private fun getOutputMediaFile(): File {
         // Get the directory for storing images
         val mediaStorageDir = File(
             Environment.getExternalStoragePublicDirectory(
-                Environment.DIRECTORY_PICTURES), "MyCameraApp")
+                Environment.DIRECTORY_PICTURES
+            ), "MyCameraApp"
+        )
 
         // Create the directory if it doesn't exist
         if (!mediaStorageDir.exists()) {
@@ -51,10 +57,11 @@ class Screen3Activity : AppCompatActivity() {
 
         // Create a unique file name
         val timeStamp = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-        return File(mediaStorageDir.path + File.separator +
-                "IMG_" + timeStamp + ".jpg")
+        return File(
+            mediaStorageDir.path + File.separator +
+                    "IMG_" + timeStamp + ".jpg"
+        )
     }
-
 
 
     /** A safe way to get an instance of the Camera object. */
@@ -66,6 +73,8 @@ class Screen3Activity : AppCompatActivity() {
             null // returns null if camera is unavailable
         }
     }
+
+    @RequiresApi(Build.VERSION_CODES.N)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityScreen3Binding.inflate(layoutInflater)
@@ -117,28 +126,33 @@ class Screen3Activity : AppCompatActivity() {
             }
 
 //            mCamera?.takePicture(null, null, mPicture)
-            timer(5000,1000,mPicture)
+            timer(5000, 1000, mPicture)
         }
     }
 
     private fun timer(i: Int, i1: Int, mPicture: Camera.PictureCallback) {
         object : CountDownTimer(5000, 1000) {
             override fun onTick(millisUntilFinished: Long) {
-                val seconds = millisUntilFinished / 1000
-                binding.circularTimer.text = (seconds).toString() + 's'
-                binding.circularTimer.setDonut_progress((100 - ((seconds.toDouble())/5)*100).toInt().toString())
-                Log.d("TIMER", ((seconds.toDouble()/5)*100).toString())
+
+                if (isFirstSecond) {
+                    binding.testStatusField.text = "Capturing Multiple Images"
+                    isFirstSecond = false
+                } else {
+
+                    if (initialExposure <= 12) {
+                        binding.testStatusField.text = "Capturing Image with exposure ${initialExposure}"
+                        mCamera?.let { captureImageWithExposure(it, initialExposure, mPicture) }
+                        initialExposure += 1
+                    }
+                }
             }
 
             override fun onFinish() {
-                binding.circularTimer.progress = 0f
-                binding.circularTimer.text = "0s"
-                binding.circularTimer.setDonut_progress("100")
-                // move to Screen 3
-                mCamera?.takePicture(null, null, mPicture)
+                binding.testStatusField.text = "Uploading Images"
             }
         }.start()
     }
+
     // Method to set the camera preview orientation
     private fun setCameraDisplayOrientation() {
         val info = Camera.CameraInfo()
@@ -159,5 +173,16 @@ class Screen3Activity : AppCompatActivity() {
             result = (info.orientation - degrees + 360) % 360
         }
         mCamera!!.setDisplayOrientation(result)
+    }
+
+    fun captureImageWithExposure(camera: Camera, exposure: Int, callback: Camera.PictureCallback) {
+        // Get the camera parameters
+        val params = camera.parameters
+        // Set the exposure compensation
+        params.exposureCompensation = exposure
+        // Set the parameters back to the camera
+        camera.parameters = params
+        // Take a picture and pass the callback
+        camera.takePicture(null, null, callback)
     }
 }
